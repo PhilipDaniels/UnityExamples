@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.Practices.Unity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,7 +10,7 @@ namespace UnityTests
     /// for example they can be used to ensure that particular instances are configured
     /// with particular types or concrete objects.
     /// See https://msdn.microsoft.com/en-us/library/dn507420%28v=pandp.30%29.aspx
-    /// 
+    ///
     /// General points:
     ///   1. We don't care about PropertyOverride because we only use constructor injection.
     ///   2. There exist convenience overloads called "DependencyOverrides" and "ParameterOverrides"
@@ -31,6 +30,19 @@ namespace UnityTests
             container.RegisterType(typeof(ICar), typeof(Car));
             container.RegisterType(typeof(IWheel), typeof(DefaultWheel));
             container.RegisterType(typeof(ITrailer), typeof(Trailer));
+        }
+
+        [TestMethod]
+        public void WhenMultipleNamedRegistrationsExistForTheSameType_ReturnedInstancesAreDifferent()
+        {
+            // https://msdn.microsoft.com/en-us/library/ff660853(v=pandp.20).aspx
+            // and http://sharpfellows.com/post/Unity-IoC-Container-
+            container.RegisterType<ICar, Car>("first car");
+            container.RegisterType<ICar, Car>("second second");
+
+            var c1 = container.Resolve<ICar>("first car");
+            var c2 = container.Resolve<ICar>("second car");
+            Assert.AreNotSame(c1, c2);
         }
 
         /// <summary>
@@ -198,7 +210,7 @@ namespace UnityTests
         void AssertAllDifferentObjects(params object[] parameters)
         {
             var prms = parameters.ToArray();
-            
+
             for (int i = 0; i < prms.Length; i++)
             {
                 for (int j = 0; j < prms.Length; j++)
